@@ -1,0 +1,300 @@
+.lock-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 48px;
+  overflow-y: auto;
+}
+
+.lock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.lock-header-child {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.streak-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 138, 61, 0.18);
+  color: #ffb26b;
+  border-radius: 999px;
+  padding: 2px 9px;
+  margin-top: 4px;
+}
+
+.lock-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.lock-tab {
+  border: none;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 15px;
+  opacity: 0.65;
+  transition: opacity 0.2s var(--ease), background 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.lock-tab:hover:not(.active) {
+  opacity: 0.85;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.lock-tab.active {
+  opacity: 1;
+  background: var(--accent);
+  color: #4a2f00;
+  box-shadow: var(--shadow-sm);
+}
+
+.quest-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 18px 22px;
+  margin-bottom: 14px;
+  animation: fq-fade-up 0.35s var(--ease) backwards;
+  transition: background 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.quest-card:hover {
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.quest-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.quest-meta {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.quest-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.quest-btn.primary {
+  background: linear-gradient(180deg, #23e0ac, var(--good));
+  color: #04321f;
+  box-shadow: 0 4px 14px rgba(6, 214, 160, 0.35);
+}
+
+.quest-btn.primary:hover:not(:disabled) {
+  box-shadow: 0 6px 18px rgba(6, 214, 160, 0.5);
+  transform: translateY(-1px);
+}
+
+.quest-btn.disabled {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-dim);
+}
+
+.redeem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.reward-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.redeem-card,
+.reward-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  padding: 22px;
+  text-align: center;
+  animation: fq-fade-up 0.35s var(--ease) backwards;
+  transition: transform 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.redeem-card:hover,
+.reward-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.redeem-card button,
+.reward-card button {
+  margin-top: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 800;
+  font-size: 16px;
+  background: linear-gradient(180deg, #ffe08a, var(--accent));
+  color: #4a2f00;
+  box-shadow: 0 4px 14px rgba(255, 209, 102, 0.35);
+}
+
+.redeem-card button:hover:not(:disabled),
+.reward-card button:hover:not(:disabled) {
+  box-shadow: 0 6px 18px rgba(255, 209, 102, 0.5);
+  transform: translateY(-1px);
+}
+
+.redeem-card button:disabled,
+.reward-card button:disabled {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-dim);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.reward-emoji {
+  font-size: 34px;
+  margin-bottom: 6px;
+}
+
+.reward-card {
+  position: relative;
+}
+
+.reward-card.tier-medium {
+  border-color: rgba(199, 143, 15, 0.55);
+}
+
+.reward-card.tier-large {
+  border-color: rgba(124, 58, 237, 0.6);
+  box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.35), 0 8px 26px rgba(124, 58, 237, 0.25);
+}
+
+.reward-tier-glow {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.picker-grid {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.picker-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 24px;
+  width: 140px;
+  animation: fq-pop 0.4s var(--ease) backwards;
+  transition: background 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+
+.picker-card:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.badge-strip {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 15px;
+}
+
+.quest-card:nth-child(1),
+.redeem-card:nth-child(1),
+.reward-card:nth-child(1) {
+  animation-delay: 0.02s;
+}
+.quest-card:nth-child(2),
+.redeem-card:nth-child(2),
+.reward-card:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.quest-card:nth-child(3),
+.redeem-card:nth-child(3),
+.reward-card:nth-child(3) {
+  animation-delay: 0.14s;
+}
+.quest-card:nth-child(4),
+.redeem-card:nth-child(4),
+.reward-card:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-dim);
+  margin-top: 60px;
+  font-size: 16px;
+}
+
+/* ---------- Responsive: narrow window (small laptop, tablet, resized) ---------- */
+@media (max-width: 640px) {
+  .lock-screen {
+    padding: 18px 16px;
+  }
+
+  .lock-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .lock-tabs {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .lock-tab {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .picker-card {
+    width: 112px;
+    padding: 16px;
+  }
+
+  .picker-grid {
+    gap: 16px;
+  }
+
+  .redeem-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+
+  .reward-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}

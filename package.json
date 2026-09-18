@@ -1,0 +1,106 @@
+{
+  "name": "familyquest-pc",
+  "productName": "FamilyQuest PC",
+  "version": "2.2.3",
+  "description": "Gamified screen-time and chore management for the family PC.",
+  "author": {
+    "name": "FamilyQuest",
+    "email": "support@familyquest.app"
+  },
+  "main": "electron/main.cjs",
+  "homepage": "./",
+  "private": true,
+  "scripts": {
+    "dev:vite": "vite",
+    "dev:electron": "cross-env NODE_ENV=development electron .",
+    "build": "vite build",
+    "test": "vitest run",
+    "dist": "npm run build && electron-builder && node build/finalize-installer.cjs",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0",
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.3.1",
+    "cross-env": "^7.0.3",
+    "electron": "^31.3.0",
+    "electron-builder": "^24.13.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.1",
+    "vitest": "^2.1.9"
+  },
+  "build": {
+    "appId": "app.familyquest.desktop",
+    "productName": "FamilyQuest PC",
+    "copyright": "Copyright (c) 2026 FamilyQuest",
+    "directories": {
+      "output": "build/release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "service",
+        "to": "service"
+      }
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "ofirshudari1-ship-it",
+        "repo": "familyquest-pc"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "publisherName": "FamilyQuest"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FamilyQuest PC",
+      "artifactName": "FamilyQuest-PC-Setup-${version}.${ext}",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/installerSidebar.bmp",
+      "installerHeader": "build/installerHeader.bmp",
+      "license": "build/LICENSE.txt",
+      "include": "build/installer.nsh",
+      "displayLanguageSelector": true,
+      "installerLanguages": [
+        "en_US",
+        "he_IL"
+      ],
+      "language": "1033"
+    }
+  },
+  "allowScripts": {
+    "electron@31.7.7": true,
+    "esbuild@0.21.5": true
+  }
+}

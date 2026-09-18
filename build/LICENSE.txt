@@ -1,0 +1,58 @@
+FAMILYQUEST PC — SOFTWARE LICENSE AGREEMENT (EULA)
+
+Copyright (c) 2026 FamilyQuest. All rights reserved.
+
+By installing FamilyQuest PC, you agree to the following terms:
+
+1. GRANT OF LICENSE
+   FamilyQuest grants you a personal, non-exclusive, non-transferable,
+   royalty-free license to install and use this software on a computer you
+   own or have permission to administer (such as a family PC).
+
+2. WHAT FAMILYQUEST PC DOES
+   FamilyQuest PC is parental-control / screen-time software. Once a parent
+   PIN is set, it can lock the computer's screen for a child profile until
+   screen time is earned through completed chores, and it enforces bedtime
+   and other restricted time windows configured by the parent. All data
+   (child profiles, tasks, screen-time history, the parent PIN — stored only
+   as a salted cryptographic hash, never in plain text) is kept locally on
+   this computer. No account, sign-up, or cloud service is required to use
+   the software, and no user data is uploaded anywhere. The only network
+   activity this software performs is an optional, user-controlled check for
+   newer versions of the software itself.
+
+3. NO WARRANTY
+   This software is provided "AS IS", without warranty of any kind, express
+   or implied, including but not limited to warranties of merchantability,
+   fitness for a particular purpose, or non-infringement. FamilyQuest PC is
+   a household tool intended to support, not replace, a parent's own
+   judgment and supervision.
+
+4. LIMITATION OF LIABILITY
+   In no event shall FamilyQuest be liable for any direct, indirect,
+   incidental, or consequential damages arising from the use or inability
+   to use this software, including but not limited to lost time, lost data,
+   or a locked computer at an inconvenient time.
+
+5. RESTRICTIONS
+   You may not redistribute, sell, reverse engineer, or remove the
+   copyright notices from this software. You may not use this software to
+   monitor or restrict the computer use of an adult without their consent.
+
+6. THE PARENT PIN AND RECOVERY
+   The parent PIN is the sole mechanism protecting the parent dashboard and
+   settings. If the PIN is forgotten, recovery is available only through a
+   security question configured at setup — FamilyQuest has no server-side
+   account and cannot recover or reset your PIN on your behalf. Losing both
+   the PIN and the security answer means reinstalling the software to
+   regain access, which will reset locally stored data unless a backup was
+   exported first (Settings > Backup).
+
+7. UNINSTALLATION
+   You may uninstall FamilyQuest PC at any time via Windows Settings > Apps,
+   or using the uninstaller placed in the installation folder. You will be
+   asked once whether to also delete locally stored settings and data;
+   choosing not to keeps that data in place in case you reinstall later.
+
+Click "I Agree" to continue installing FamilyQuest PC, or "Cancel" to exit
+setup.
