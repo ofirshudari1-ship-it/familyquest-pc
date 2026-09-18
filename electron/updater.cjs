@@ -2,12 +2,13 @@
 // update feed has been published yet — it reports a clear status instead of
 // crashing, since this project ships without a configured update server by default.
 // See README.md "מנגנון עדכונים" for how to actually turn this on.
-const { app } = require('electron');
+const { app, dialog, BrowserWindow } = require('electron');
 const EventEmitter = require('events');
 const store = require('./store.cjs');
 
 const emitter = new EventEmitter();
 let lastStatus = { state: 'idle' };
+let autoCheckStarted = false;
 
 function setStatus(status) {
   lastStatus = status;

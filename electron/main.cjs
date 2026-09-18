@@ -1,4 +1,5 @@
 const { app, ipcMain, dialog, Notification, shell } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
 const { pathToFileURL } = require('url');
@@ -69,6 +70,33 @@ if (!gotSingleInstanceLock) {
     windows.createHomeWindow();
     windows.createHudWindow();
     tray.createTray();
+
+    // Non-blocking, best-effort update check against the public GitHub repo.
+    // Never touches lock/PIN logic; failures (offline, rate-limited) are logged only.
+    setTimeout(() => {
+      try {
+        autoUpdater.autoDownload = false;
+        autoUpdater.checkForUpdates().catch((err) => {
+          console.error('[updater] check failed:', err && err.message);
+        });
+      } catch (err) {
+        console.error('[updater] init failed:', err && err.message);
+      }
+    }, 5000);
+    autoUpdater.on('update-downloaded', () => {
+      dialog.showMessageBox({
+        type: 'info',
+        title: 'FamilyQuest PC',
+        message: 'עדכון חדש זמין. להתקין ולהפעיל מחדש עכשיו?',
+        buttons: ['התקן עכשיו', 'מאוחר יותר'],
+      }).then((result) => {
+        if (result.response === 0) autoUpdater.quitAndInstall();
+      });
+    });
+    autoUpdater.on('update-available', () => {
+      autoUpdater.downloadUpdate().catch((err) => console.error('[updater] download failed:', err && err.message));
+    });
+    autoUpdater.on('error', (err) => console.error('[updater] error:', err && err.message));
 
     lockManager.on('state', (state) => windows.applyLockState(state));
     lockManager.on('warning', ({ childId, minutesLeft }) => {
