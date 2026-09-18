@@ -8,7 +8,6 @@ const store = require('./store.cjs');
 
 const emitter = new EventEmitter();
 let lastStatus = { state: 'idle' };
-let autoCheckStarted = false;
 
 function setStatus(status) {
   lastStatus = status;
@@ -120,6 +119,24 @@ function autoCheckOnStartup() {
     autoUpdater.on('update-not-available', () => setStatus({ state: 'not-available' }));
     autoUpdater.on('update-downloaded', (info) => {
       setStatus({ state: 'downloaded', version: info.version });
+      // A simple native dialog is the standard electron-updater pattern and
+      // guarantees the parent actually sees the prompt even if they're not
+      // sitting on the Settings screen (which also reflects 'downloaded' via
+      // the status event above, for anyone who is).
+      dialog
+        .showMessageBox(BrowserWindow.getFocusedWindow() || undefined, {
+          type: 'info',
+          title: 'FamilyQuest PC',
+          message: `עדכון חדש (${info.version}) הורד ומוכן להתקנה.`,
+          detail: 'להתקין ולהפעיל מחדש עכשיו, או שההתקנה תתבצע אוטומטית ביציאה הבאה מהתוכנה?',
+          buttons: ['התקן עכשיו', 'מאוחר יותר'],
+          defaultId: 0,
+          cancelId: 1
+        })
+        .then((result) => {
+          if (result.response === 0) autoUpdater.quitAndInstall();
+        })
+        .catch((err) => logUpdaterError('restart dialog failed', err));
     });
     autoUpdater.on('error', (err) => {
       // Expected in dev/offline/no-release-yet situations — log only, never crash.
