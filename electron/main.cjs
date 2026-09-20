@@ -50,6 +50,33 @@ app.on('web-contents-created', (_event, contents) => {
   });
 });
 
+// Parent-facing heads-up when a child's screen-time session starts (their
+// screen unlocks) or ends (it locks again) while the dashboard window isn't
+// open/visible to watch it happen live — opt-in via Settings, off doesn't
+// touch the in-app HUD/lock overlay, only this extra system notification.
+function notifySessionChange(state, previousStatus) {
+  if (!store.getSettings().notifyOnSessionChange) return;
+  if (!previousStatus || previousStatus === state.status) return;
+  const dashboardVisible = Boolean(windows.dashboardWin && !windows.dashboardWin.isDestroyed() && windows.dashboardWin.isVisible());
+  if (dashboardVisible) return;
+
+  const childId = state.childId || null;
+  const child = childId ? economy.getChild(childId) : null;
+  const name = child ? child.name : null;
+
+  let body = null;
+  if (state.status === 'unlocked' && (previousStatus === 'locked' || previousStatus === 'picker')) {
+    body = name ? `זמן המסך של ${name} התחיל` : 'זמן מסך התחיל';
+  } else if (state.status === 'locked' && previousStatus === 'unlocked') {
+    body = name ? `המסך של ${name} ננעל מחדש` : 'המסך ננעל מחדש';
+  }
+  if (!body) return;
+
+  if (Notification.isSupported()) {
+    new Notification({ title: 'FamilyQuest PC', body }).show();
+  }
+}
+
 const gotSingleInstanceLock = app.requestSingleInstanceLock();
 if (!gotSingleInstanceLock) {
   app.quit();
@@ -70,7 +97,12 @@ if (!gotSingleInstanceLock) {
     windows.createHudWindow();
     tray.createTray();
 
-    lockManager.on('state', (state) => windows.applyLockState(state));
+    let lastLockStatus = null;
+    lockManager.on('state', (state) => {
+      windows.applyLockState(state);
+      notifySessionChange(state, lastLockStatus);
+      lastLockStatus = state.status;
+    });
     lockManager.on('warning', ({ childId, minutesLeft }) => {
       windows.sendToAll('lock:warning', { childId, minutesLeft });
       if (Notification.isSupported()) {

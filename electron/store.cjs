@@ -15,7 +15,15 @@ const DEFAULT_SETTINGS = {
   securityQuestionId: null,
   securityAnswerHash: null,
   securityAnswerSalt: null,
-  lastWeeklyDigestSeenAt: null
+  lastWeeklyDigestSeenAt: null,
+  // Background/tray behavior (STANDARDS.md §12 — FamilyQuest PC now runs as a
+  // background family/screen-time app, not a one-shot tool): closing the parent
+  // dashboard window hides it to the tray instead of quitting the whole app.
+  minimizeToTray: true,
+  trayBalloonShown: false,
+  // Parent-facing heads-up when a child's session starts (screen time begins)
+  // or ends (screen locks again) while the dashboard window isn't open/visible.
+  notifyOnSessionChange: true
 };
 
 // Isolates the persisted store to a scratch directory during automated tests
@@ -37,7 +45,11 @@ const store = new Store({
     redemptions: [],
     familyGoal: null,
     coopQuests: [],
-    settings: DEFAULT_SETTINGS
+    settings: DEFAULT_SETTINGS,
+    // Parent dashboard window size/position, remembered between sessions
+    // (STANDARDS.md §12.3). Never stores a "minimized to tray" state here —
+    // the dashboard simply isn't recreated until the parent asks for it again.
+    dashboardBounds: null
   }
 });
 

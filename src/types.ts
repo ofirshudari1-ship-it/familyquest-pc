@@ -159,6 +159,10 @@ export interface Settings {
   securityQuestionId: string | null;
   securityAnswerHash: string | null;
   securityAnswerSalt: string | null;
+  lastWeeklyDigestSeenAt: string | null;
+  minimizeToTray: boolean;
+  trayBalloonShown: boolean;
+  notifyOnSessionChange: boolean;
 }
 
 export type LockState =

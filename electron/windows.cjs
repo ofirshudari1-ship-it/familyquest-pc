@@ -1,6 +1,7 @@
 const { BrowserWindow, screen } = require('electron');
 const path = require('path');
 const taskbar = require('./taskbar.cjs');
+const store = require('./store.cjs');
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -71,15 +72,45 @@ function createHudWindow() {
   return hudWin;
 }
 
+// Window state persistence (STANDARDS.md §12.3): remember the dashboard's
+// size/position/maximized state between sessions, but only reuse saved x/y if
+// that point still lands on a currently-connected display — otherwise a
+// disconnected second monitor would open the window off-screen forever.
+function getInitialDashboardBounds() {
+  const DEFAULTS = { width: 1100, height: 740 };
+  const saved = store.get('dashboardBounds');
+  if (!saved) return DEFAULTS;
+  const onScreen = screen.getAllDisplays().some((d) => {
+    const a = d.workArea;
+    return saved.x >= a.x && saved.y >= a.y && saved.x < a.x + a.width && saved.y < a.y + a.height;
+  });
+  return {
+    width: saved.width || DEFAULTS.width,
+    height: saved.height || DEFAULTS.height,
+    ...(onScreen && Number.isFinite(saved.x) && Number.isFinite(saved.y) ? { x: saved.x, y: saved.y } : {}),
+    isMaximized: Boolean(saved.isMaximized)
+  };
+}
+
+function saveDashboardBounds() {
+  if (!dashboardWin || dashboardWin.isDestroyed()) return;
+  const isMaximized = dashboardWin.isMaximized();
+  const bounds = isMaximized ? dashboardWin.getNormalBounds() : dashboardWin.getBounds();
+  store.set('dashboardBounds', { ...bounds, isMaximized });
+}
+
 function getOrCreateDashboardWindow() {
   if (dashboardWin && !dashboardWin.isDestroyed()) {
     dashboardWin.show();
     dashboardWin.focus();
     return dashboardWin;
   }
+  const initialBounds = getInitialDashboardBounds();
   dashboardWin = new BrowserWindow({
-    width: 1100,
-    height: 740,
+    width: initialBounds.width,
+    height: initialBounds.height,
+    x: initialBounds.x,
+    y: initialBounds.y,
     minWidth: 860,
     minHeight: 560,
     backgroundColor: '#f4f6fb',
@@ -91,7 +122,39 @@ function getOrCreateDashboardWindow() {
       sandbox: true
     }
   });
+  if (initialBounds.isMaximized) dashboardWin.maximize();
+
+  let saveBoundsTimer = null;
+  const scheduleSaveBounds = () => {
+    if (saveBoundsTimer) clearTimeout(saveBoundsTimer);
+    saveBoundsTimer = setTimeout(saveDashboardBounds, 400);
+  };
+  dashboardWin.on('resize', scheduleSaveBounds);
+  dashboardWin.on('move', scheduleSaveBounds);
+
   loadView(dashboardWin, 'dashboard');
+
+  // Closing the dashboard (X) never quits FamilyQuest PC — screen-time
+  // enforcement (home/HUD windows + tray) must keep running regardless. When
+  // minimizeToTray is on (default) the window itself is hidden rather than
+  // destroyed, so reopening it from the tray is instant and keeps scroll
+  // position/state; the first time this happens, a one-time balloon explains
+  // the app is still running (STANDARDS.md §12.1). Turning the setting off
+  // falls back to a plain destroy-and-recreate — functionally identical from
+  // the app's point of view, since nothing here ever calls app.quit().
+  dashboardWin.on('close', (event) => {
+    if (saveBoundsTimer) clearTimeout(saveBoundsTimer);
+    saveDashboardBounds();
+    const { minimizeToTray } = store.getSettings();
+    if (!global.isQuitting && minimizeToTray) {
+      event.preventDefault();
+      dashboardWin.hide();
+      // Deferred require avoids a load-order issue with tray.cjs (which
+      // itself requires this module) — safe here since it only runs long
+      // after both modules have finished loading, on an actual user close.
+      require('./tray.cjs').notifyMinimizedToTrayOnce();
+    }
+  });
   dashboardWin.on('closed', () => {
     dashboardWin = null;
   });

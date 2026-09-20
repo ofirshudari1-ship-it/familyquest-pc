@@ -291,14 +291,35 @@ export default function DashboardSettings() {
       </div>
 
       <div className="card">
-        <h3 style={{ marginTop: 0 }}>הפעלה אוטומטית</h3>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <h3 style={{ marginTop: 0 }}>הפעלה אוטומטית ורקע</h3>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <input
             type="checkbox"
             checked={settings.autostart}
             onChange={(e) => save({ autostart: e.target.checked })}
           />
           הפעל את FamilyQuest PC אוטומטית עם הפעלת המחשב
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <input
+            type="checkbox"
+            checked={settings.minimizeToTray}
+            onChange={(e) => save({ minimizeToTray: e.target.checked })}
+          />
+          סגירת דשבורד ההורים (X) ממזערת לסמל במגש המערכת, במקום לסגור אותו
+        </label>
+        <p className="dim" style={{ marginTop: 0, marginBottom: 12 }}>
+          הבקרה על זמן המסך פעילה תמיד ברקע כל עוד התוכנה פועלת, גם כשהאפשרות הזו כבויה — היא קובעת רק אם
+          חלון דשבורד ההורים עצמו נסגר או רק מוסתר. יציאה מלאה מהתוכנה תמיד אפשרית מקליק ימני על סמל המגש
+          ← "יציאה", או מכפתור היציאה למטה בעמוד הזה.
+        </p>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <input
+            type="checkbox"
+            checked={settings.notifyOnSessionChange}
+            onChange={(e) => save({ notifyOnSessionChange: e.target.checked })}
+          />
+          התראת מערכת כשזמן מסך של ילד/ה מתחיל או נגמר, אם דשבורד ההורים לא פתוח
         </label>
       </div>
 
