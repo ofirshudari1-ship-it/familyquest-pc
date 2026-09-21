@@ -14,7 +14,12 @@ export function useModalA11y<T extends HTMLElement>(onClose: () => void) {
     const previouslyFocused = document.activeElement as HTMLElement | null;
     const panel = ref.current;
     const focusables = panel?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-    focusables?.[0]?.focus();
+    // A destructive dialog marks its safe default with data-fq-autofocus so
+    // Enter doesn't accidentally confirm it, even though the confirm button
+    // is deliberately first in the DOM (see ConfirmDialog) to land on the
+    // right in RTL. Falls back to the first focusable, as before.
+    const preferred = panel?.querySelector<HTMLElement>('[data-fq-autofocus="true"]');
+    (preferred || focusables?.[0])?.focus();
 
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {

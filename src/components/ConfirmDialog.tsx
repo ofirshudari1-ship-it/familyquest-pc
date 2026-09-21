@@ -51,15 +51,17 @@ export default function ConfirmDialog({
         <h3 id="fq-confirm-title" style={{ margin: '0 0 8px' }}>{title}</h3>
         {message && <p style={{ margin: '0 0 16px', color: 'var(--text-dim, #666)' }}>{message}</p>}
         {children && <div style={{ marginBottom: 16 }}>{children}</div>}
+        {/* DOM order is confirm-then-cancel on purpose: the document is dir="rtl",
+            and with justify-content:flex-end a row flex container lays its main
+            axis right-to-left, so the FIRST child ends up rightmost. Windows'
+            own RTL dialogs put the primary/default action on the right (verified
+            against File Explorer) — putting confirm first here is what achieves
+            that, not what breaks it. Swapping this order flips the buttons back
+            to the wrong (mirrored-English) layout. */}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <button
-            onClick={onCancel}
-            style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #ddd', background: '#fff' }}
-          >
-            {cancelLabel}
-          </button>
-          <button
             onClick={onConfirm}
+            data-fq-autofocus={danger ? undefined : 'true'}
             style={{
               padding: '8px 16px',
               borderRadius: 8,
@@ -70,6 +72,13 @@ export default function ConfirmDialog({
             }}
           >
             {confirmLabel}
+          </button>
+          <button
+            onClick={onCancel}
+            data-fq-autofocus={danger ? 'true' : undefined}
+            style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #ddd', background: '#fff' }}
+          >
+            {cancelLabel}
           </button>
         </div>
       </div>
