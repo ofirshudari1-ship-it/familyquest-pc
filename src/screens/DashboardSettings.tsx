@@ -234,7 +234,7 @@ export default function DashboardSettings() {
   const whitelist = settings.whitelist || [];
 
   return (
-    <div>
+    <div className="settings-column">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={{ margin: 0 }}>הגדרות</h2>
         {savedMsg && <span style={{ color: 'var(--good)', fontWeight: 600 }}>{savedMsg}</span>}

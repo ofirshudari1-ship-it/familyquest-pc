@@ -198,6 +198,15 @@
   font-weight: 800;
 }
 
+/* Settings is a long stack of single-column cards (paragraphs + form fields).
+   Unlike Overview/Quests/Rewards (grids and tables that benefit from the full
+   window width), letting it stretch edge-to-edge on a maximized 1080p+ window
+   makes the paragraph text uncomfortably wide to read. Cap it, don't shrink it
+   below the window — max-width still lets it shrink further on narrow windows. */
+.settings-column {
+  max-width: 680px;
+}
+
 .audit-row {
   display: flex;
   justify-content: space-between;
