@@ -1,7 +1,8 @@
-const { BrowserWindow, screen } = require('electron');
+const { app, BrowserWindow, screen } = require('electron');
 const path = require('path');
 const taskbar = require('./taskbar.cjs');
 const store = require('./store.cjs');
+const { ICON_PNG_BASE64 } = require('./icon.cjs');
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -9,6 +10,98 @@ let homeWin = null;
 let hudWin = null;
 let dashboardWin = null;
 let reassertInterval = null;
+let splash = null;
+
+// STANDARDS.md §19 — branded splash screen shown while the kid-facing lock
+// screen (homeWin, the window created at every app launch) loads. Modeled
+// on HOMEY AI's desktop/main.js (createSplash/closeSplash/revealMainWindow).
+const SPLASH_MIN_MS = 800; // never flash-and-gone even on a fast/cached load
+const SPLASH_MAX_MS = 8000; // fail-safe — show the main window regardless if loading hangs
+
+function createSplash() {
+  splash = new BrowserWindow({
+    width: 320,
+    height: 320,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    movable: false,
+    skipTaskbar: true,
+    alwaysOnTop: true,
+    backgroundColor: '#00000000',
+    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true }
+  });
+  splash.loadFile(path.join(__dirname, 'splash.html'));
+  splash.webContents.once('did-finish-load', () => {
+    if (!splash || splash.isDestroyed()) return;
+    const logoSrc = `data:image/png;base64,${ICON_PNG_BASE64}`;
+    const versionText = `v${app.getVersion()}`;
+    splash.webContents
+      .executeJavaScript(
+        `document.getElementById('logo').src = ${JSON.stringify(logoSrc)};` +
+          `document.getElementById('version').textContent = ${JSON.stringify(versionText)};`
+      )
+      .catch(() => {
+        /* purely cosmetic — never block the splash on this */
+      });
+  });
+  return splash;
+}
+
+function closeSplash() {
+  if (splash && !splash.isDestroyed()) splash.close();
+  splash = null;
+}
+
+// Reveal coordination lives at module scope (not inside createHomeWindow)
+// because applyLockState — called on a 3s interval from lockManager.tick(),
+// starting immediately and synchronously from lockManager.start() — also
+// wants homeWin shown as soon as a lock state is known. Without this guard
+// that first synchronous tick would call homeWin.show() before the renderer
+// has even painted its first frame (before contentReady) and before the
+// splash's 800ms floor, defeating both the splash and the show:false/
+// ready-to-show anti-flash pattern.
+let splashShownAt = 0;
+let contentReady = false;
+let revealed = false;
+let lastLockState = null; // last state applyLockState was asked to render, re-applied once revealed
+
+function revealMainWindow() {
+  if (revealed || !homeWin || homeWin.isDestroyed() || !contentReady) return;
+  const elapsed = Date.now() - splashShownAt;
+  const remaining = Math.max(0, SPLASH_MIN_MS - elapsed);
+  if (remaining > 0) {
+    setTimeout(revealMainWindow, remaining);
+    return;
+  }
+  revealed = true;
+  closeSplash();
+  // Re-run the normal lock-state visibility logic now that we're allowed to
+  // actually show/hide windows — e.g. an 'unlocked' state at launch (a
+  // session that was still active when the app restarted) must reveal the
+  // HUD, not flash the home/kiosk window, exactly as applyLockState already
+  // decides for every later tick. Fall back to a plain show if no state has
+  // arrived yet (shouldn't normally happen — lockManager.tick() runs
+  // synchronously from lockManager.start()).
+  if (lastLockState) {
+    applyLockState(lastLockState);
+  } else {
+    homeWin.show();
+  }
+}
+
+// Used by applyLockState wherever the pre-splash code called `homeWin.show()`
+// directly: before the initial reveal this defers to revealMainWindow (which
+// waits for contentReady + the 800ms floor, then re-applies the lock state);
+// afterwards it's a plain show.
+function showHomeWindow() {
+  if (!homeWin || homeWin.isDestroyed()) return;
+  if (!revealed) {
+    revealMainWindow();
+    return;
+  }
+  if (!homeWin.isVisible()) homeWin.show();
+}
 
 function loadView(win, view) {
   if (isDev) {
@@ -19,6 +112,16 @@ function loadView(win, view) {
 }
 
 function createHomeWindow() {
+  // homeWin is the first thing the app puts on screen at every launch (the
+  // kid-facing lock screen) — createHudWindow/dashboardWin are secondary
+  // (HUD follows once unlocked; the dashboard only opens on parent request),
+  // so the branded startup splash belongs here, not on those.
+  createSplash();
+  splashShownAt = Date.now();
+  contentReady = false;
+  revealed = false;
+  lastLockState = null;
+
   homeWin = new BrowserWindow({
     show: false,
     backgroundColor: '#141726',
@@ -40,8 +143,22 @@ function createHomeWindow() {
     if (!global.isQuitting) event.preventDefault();
   });
 
+  homeWin.once('ready-to-show', () => {
+    contentReady = true;
+    revealMainWindow();
+  });
+  homeWin.webContents.once('did-fail-load', () => {
+    contentReady = true;
+    revealMainWindow();
+  });
+  // Safety timeout (STANDARDS.md §19.2): the splash must never be able to get
+  // stuck forever even if the renderer never fires ready-to-show/did-fail-load.
+  setTimeout(() => {
+    contentReady = true;
+    revealMainWindow();
+  }, SPLASH_MAX_MS);
+
   loadView(homeWin, 'home');
-  homeWin.once('ready-to-show', () => homeWin.show());
   return homeWin;
 }
 
@@ -184,16 +301,17 @@ function clearKiosk() {
 // the parent needs to reach the dashboard that completes setup in the first place.
 function applyLockState(state) {
   if (!homeWin || homeWin.isDestroyed()) return;
+  lastLockState = state;
 
   const locked = state.status === 'locked' || state.status === 'picker';
 
   if (state.status === 'setup') {
     clearKiosk();
-    if (!homeWin.isVisible()) homeWin.show();
+    showHomeWindow();
     if (hudWin && !hudWin.isDestroyed()) hudWin.hide();
   } else if (locked) {
     if (hudWin && !hudWin.isDestroyed()) hudWin.hide();
-    if (!homeWin.isVisible()) homeWin.show();
+    showHomeWindow();
     if (!isDev) {
       homeWin.setKiosk(true);
       homeWin.setAlwaysOnTop(true, 'screen-saver');
