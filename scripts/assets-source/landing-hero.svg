@@ -1,0 +1,133 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGrad" cx="32%" cy="28%" r="85%">
+      <stop offset="0%" stop-color="#4834a3"/>
+      <stop offset="70%" stop-color="#2b2d63"/>
+      <stop offset="100%" stop-color="#211f49"/>
+    </radialGradient>
+    <linearGradient id="monitorGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a2e8a"/>
+      <stop offset="100%" stop-color="#241f52"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f4f2ff"/>
+    </linearGradient>
+    <radialGradient id="coinGrad" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#ffe9a8"/>
+      <stop offset="60%" stop-color="#ffd166"/>
+      <stop offset="100%" stop-color="#e8a83a"/>
+    </radialGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#0c0a2b" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+
+  <!-- decorative stars / sparkle dots -->
+  <g fill="#ffffff" opacity="0.5">
+    <circle cx="120" cy="90" r="3"/>
+    <circle cx="200" cy="150" r="2"/>
+    <circle cx="1080" cy="80" r="3"/>
+    <circle cx="1010" cy="180" r="2"/>
+    <circle cx="960" cy="520" r="2.5"/>
+    <circle cx="80" cy="470" r="2.5"/>
+    <circle cx="620" cy="60" r="2"/>
+  </g>
+
+  <!-- floating quest board card (left) -->
+  <g filter="url(#soft)">
+    <rect x="90" y="150" width="330" height="300" rx="26" fill="url(#cardGrad)"/>
+  </g>
+  <g transform="translate(90,150)">
+    <rect x="26" y="26" width="278" height="34" rx="10" fill="#4834a3"/>
+    <circle cx="46" cy="43" r="8" fill="#ffd166"/>
+    <rect x="64" y="36" width="150" height="14" rx="7" fill="#ffffff" opacity="0.85"/>
+
+    <!-- quest rows -->
+    <g>
+      <rect x="26" y="82" width="278" height="52" rx="14" fill="#eef0ff"/>
+      <circle cx="52" cy="108" r="16" fill="#06d6a0"/>
+      <path d="M45 108 l5 6 l10 -12" stroke="#ffffff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="80" y="98" width="160" height="10" rx="5" fill="#3a3560" opacity="0.75"/>
+      <rect x="80" y="114" width="100" height="8" rx="4" fill="#3a3560" opacity="0.35"/>
+      <circle cx="272" cy="108" r="14" fill="url(#coinGrad)"/>
+      <text x="272" y="113" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#8a5a00" text-anchor="middle">5</text>
+    </g>
+    <g>
+      <rect x="26" y="146" width="278" height="52" rx="14" fill="#eef0ff"/>
+      <circle cx="52" cy="172" r="16" fill="#06d6a0"/>
+      <path d="M45 172 l5 6 l10 -12" stroke="#ffffff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="80" y="162" width="180" height="10" rx="5" fill="#3a3560" opacity="0.75"/>
+      <rect x="80" y="178" width="90" height="8" rx="4" fill="#3a3560" opacity="0.35"/>
+      <circle cx="272" cy="172" r="14" fill="url(#coinGrad)"/>
+      <text x="272" y="177" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#8a5a00" text-anchor="middle">8</text>
+    </g>
+    <g>
+      <rect x="26" y="210" width="278" height="52" rx="14" fill="#fff4e2" stroke="#ffd166" stroke-width="2"/>
+      <circle cx="52" cy="236" r="16" fill="#ffd166"/>
+      <circle cx="52" cy="236" r="6" fill="#ffffff" opacity="0.7"/>
+      <rect x="80" y="226" width="150" height="10" rx="5" fill="#3a3560" opacity="0.75"/>
+      <rect x="80" y="242" width="110" height="8" rx="4" fill="#3a3560" opacity="0.35"/>
+      <circle cx="272" cy="236" r="14" fill="url(#coinGrad)"/>
+      <text x="272" y="241" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#8a5a00" text-anchor="middle">3</text>
+    </g>
+  </g>
+
+  <!-- monitor / screen-time element (right side, being unlocked) -->
+  <g transform="translate(760,120)" filter="url(#soft)">
+    <rect x="0" y="0" width="340" height="230" rx="20" fill="url(#monitorGrad)" stroke="#6a58c9" stroke-width="3"/>
+    <rect x="18" y="18" width="304" height="170" rx="10" fill="#1b1740"/>
+    <!-- unlocked padlock glowing -->
+    <g transform="translate(170,103)">
+      <circle r="46" fill="#06d6a0" opacity="0.18"/>
+      <rect x="-24" y="-4" width="48" height="38" rx="10" fill="#06d6a0"/>
+      <path d="M-14 -4 v-14 a14 14 0 0 1 22 -9" stroke="#e8fff7" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <circle cx="0" cy="16" r="6" fill="#0c3d2f"/>
+    </g>
+    <rect x="150" y="200" width="40" height="16" fill="#3a2e8a"/>
+    <rect x="118" y="216" width="104" height="12" rx="6" fill="#3a2e8a"/>
+  </g>
+
+  <!-- trophy + coin burst (center bottom) -->
+  <g transform="translate(560,360)">
+    <circle r="90" fill="#ffd166" opacity="0.14"/>
+    <g filter="url(#soft)" transform="translate(-46,-58)">
+      <path d="M10 0 H82 V16 C82 46 66 62 46 64 C26 62 10 46 10 16 Z" fill="url(#coinGrad)"/>
+      <rect x="0" y="-8" width="26" height="16" rx="8" fill="#e8a83a"/>
+      <rect x="66" y="-8" width="26" height="16" rx="8" fill="#e8a83a"/>
+      <rect x="34" y="64" width="24" height="18" fill="#c98a2c"/>
+      <rect x="20" y="82" width="52" height="14" rx="6" fill="#8a5a00"/>
+      <circle cx="46" cy="30" r="16" fill="#fff3cf" opacity="0.8"/>
+    </g>
+    <!-- coin sparkles around trophy -->
+    <circle cx="-90" cy="-20" r="16" fill="url(#coinGrad)"/>
+    <circle cx="96" cy="-46" r="12" fill="url(#coinGrad)"/>
+    <circle cx="82" cy="46" r="10" fill="url(#coinGrad)"/>
+    <circle cx="-70" cy="52" r="9" fill="url(#coinGrad)"/>
+  </g>
+
+  <!-- kid character celebrating -->
+  <g transform="translate(300,470)">
+    <ellipse cx="0" cy="118" rx="70" ry="14" fill="#000000" opacity="0.18"/>
+    <!-- legs -->
+    <rect x="-24" y="70" width="18" height="44" rx="9" fill="#2b2d63"/>
+    <rect x="6" y="70" width="18" height="44" rx="9" fill="#2b2d63"/>
+    <!-- body -->
+    <path d="M-40 20 C-40 -6 40 -6 40 20 L34 76 C 20 90 -20 90 -34 76 Z" fill="#ff6b6b"/>
+    <!-- arms raised -->
+    <path d="M-38 22 C-58 6 -66 -18 -58 -34" stroke="#ff6b6b" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <path d="M38 22 C58 6 66 -18 58 -34" stroke="#ff6b6b" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <circle cx="-58" cy="-40" r="10" fill="url(#coinGrad)"/>
+    <circle cx="58" cy="-40" r="10" fill="url(#coinGrad)"/>
+    <!-- head -->
+    <circle cx="0" cy="-24" r="34" fill="#ffd8b3"/>
+    <path d="M-34 -30 C-34 -58 34 -58 34 -30 C 20 -40 -20 -40 -34 -30 Z" fill="#4a2e12"/>
+    <circle cx="-11" cy="-26" r="4" fill="#2b2d63"/>
+    <circle cx="11" cy="-26" r="4" fill="#2b2d63"/>
+    <path d="M-10 -10 Q0 -1 10 -10" stroke="#2b2d63" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="-20" cy="-14" r="6" fill="#ff9d9d" opacity="0.6"/>
+    <circle cx="20" cy="-14" r="6" fill="#ff9d9d" opacity="0.6"/>
+  </g>
+</svg>

@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import type { SecurityQuestion } from '../types';
 import Avatar, { AVATAR_OPTIONS } from '../components/Avatar';
+import OnboardingHero from '../components/OnboardingHero';
 
 export default function Onboarding({ onDone }: { onDone: () => void }) {
   const [step, setStep] = useState<1 | 2>(1);
@@ -53,6 +54,7 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
   return (
     <div className="theme-parent" style={{ height: '100%', overflowY: 'auto', padding: '40px 24px' }}>
       <div style={{ maxWidth: 460, margin: '0 auto' }}>
+        <OnboardingHero />
         <h1 style={{ textAlign: 'center' }}>ברוכים הבאים ל-FamilyQuest PC 🎉</h1>
 
         {step === 1 && (
