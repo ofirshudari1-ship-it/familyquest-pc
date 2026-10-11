@@ -2,6 +2,7 @@ const { app, BrowserWindow, screen } = require('electron');
 const path = require('path');
 const taskbar = require('./taskbar.cjs');
 const store = require('./store.cjs');
+const updater = require('./updater.cjs');
 const { ICON_PNG_BASE64 } = require('./icon.cjs');
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -246,6 +247,8 @@ function getOrCreateDashboardWindow() {
     if (saveBoundsTimer) clearTimeout(saveBoundsTimer);
     saveBoundsTimer = setTimeout(saveDashboardBounds, 400);
   };
+  // A downloaded update waits for the parent dashboard to be visible, then asks once per version.
+  dashboardWin.on('show', () => setTimeout(() => updater.maybePrompt(dashboardWin), 1500));
   dashboardWin.on('resize', scheduleSaveBounds);
   dashboardWin.on('move', scheduleSaveBounds);
 

@@ -3,6 +3,7 @@ const economy = require('./economy.cjs');
 const lockManager = require('./lockManager.cjs');
 const windows = require('./windows.cjs');
 const store = require('./store.cjs');
+const updater = require('./updater.cjs');
 const { ICON_PNG_BASE64 } = require('./icon.cjs');
 
 let tray = null;
@@ -28,6 +29,9 @@ function buildMenu() {
       label: pendingCount > 0 ? `פתח דשבורד הורים (${pendingCount} ממתינים)` : 'פתח דשבורד הורים',
       click: () => windows.getOrCreateDashboardWindow()
     },
+    ...(updater.getDownloadedVersion()
+      ? [{ label: `הפעל מחדש לעדכון לגרסה ${updater.getDownloadedVersion()}`, click: () => updater.quitAndInstall() }]
+      : []),
     { label: 'אודות', role: 'about' },
     { type: 'separator' },
     // The one real full-exit path from the tray: isQuitting must be set before

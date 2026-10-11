@@ -11,6 +11,10 @@ const DEFAULT_SETTINGS = {
   soundEffectsEnabled: true,
   lowBalanceThreshold: 10,
   updateFeedUrl: null,
+  // Install a downloaded update automatically the next time FamilyQuest PC quits (downloading is
+  // always automatic). Default ON. Windows shows one permission prompt (UAC) per update because the
+  // app is installed per-machine in Program Files.
+  autoInstallUpdates: true,
   siblingRecognitionEnabled: true,
   securityQuestionId: null,
   securityAnswerHash: null,

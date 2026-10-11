@@ -92,6 +92,10 @@ describe('coop quests', () => {
 });
 
 describe('screen-time redemption', () => {
+  // These rules depend on wall-clock time (bedtime 20:30-07:00, weekend limits). Pin the clock to a
+  // Wednesday at noon so the suite passes at any hour; a fresh Date per call because callers mutate it.
+  beforeEach(() => economy.setClock(() => new Date(2026, 0, 7, 12, 0, 0)));
+  afterEach(() => economy.setClock(null));
   it('rejects redemption when coin balance is insufficient', () => {
     const child = economy.addChild({ name: 'Uri', dailyTimeLimitMins: 120 });
     expect(() => economy.redeemMinutes(child.id, 30)).toThrow('אין מספיק מטבעות');
@@ -163,4 +167,18 @@ describe('streaks', () => {
     const child = economy.addChild({ name: 'Uri' });
     expect(economy.computeStreak(child.id)).toBe(0);
   });
+});
+
+describe('injected clock', () => {
+  afterEach(() => economy.setClock(null));
+
+  it('bedtime follows the injected clock, not the real time of day', () => {
+    const child = economy.addChild({ name: 'Uri', dailyTimeLimitMins: 120 });
+    economy.setClock(() => new Date(2026, 0, 7, 23, 0, 0));
+    expect(economy.isBedtime(child)).toBe(true);
+    expect(() => economy.redeemMinutes(child.id, 10)).toThrow('שעת שינה');
+    economy.setClock(() => new Date(2026, 0, 7, 12, 0, 0));
+    expect(economy.isBedtime(child)).toBe(false);
+  });
+
 });

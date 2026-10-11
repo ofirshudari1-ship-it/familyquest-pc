@@ -155,6 +155,7 @@ export interface Settings {
   soundEffectsEnabled: boolean;
   lowBalanceThreshold: number;
   updateFeedUrl: string | null;
+  autoInstallUpdates: boolean;
   siblingRecognitionEnabled: boolean;
   securityQuestionId: string | null;
   securityAnswerHash: string | null;

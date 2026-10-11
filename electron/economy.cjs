@@ -1,15 +1,26 @@
 const crypto = require('crypto');
 const store = require('./store.cjs');
 
+// Injectable clock: wall-clock-dependent rules (bedtime, weekend, daily limit, streaks) read the
+// current time through currentTime(), so tests can pin it with setClock() instead of depending on the hour
+// the suite happens to run at. Production never calls setClock().
+let clockFn = () => new Date();
+function setClock(fn) {
+  clockFn = typeof fn === 'function' ? fn : () => new Date();
+}
+function currentTime() {
+  return clockFn();
+}
+
 function uuid() {
   return crypto.randomUUID();
 }
 
 function nowIso() {
-  return new Date().toISOString();
+  return currentTime().toISOString();
 }
 
-function todayKey(date = new Date()) {
+function todayKey(date = currentTime()) {
   // Local calendar day, not UTC — a 23:50 session and a 00:05 one are different days.
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
@@ -348,7 +359,7 @@ function calendarDaysBetween(basisDate, now) {
 // Called on a scheduler tick (see lockManager.cjs) — cheap and idempotent.
 function resetRecurringTasks() {
   const tasks = store.get('tasks');
-  const now = new Date();
+  const now = currentTime();
   let changed = false;
   for (const task of tasks) {
     if (task.recurrence === 'once') continue;
@@ -393,7 +404,7 @@ function drainCelebrations() {
 
 // A parent-granted temporary boost (see grantCoinMultiplier) — expired ones are
 // treated as absent rather than requiring a separate cleanup pass.
-function getActiveMultiplier(child, at = new Date()) {
+function getActiveMultiplier(child, at = currentTime()) {
   if (!child.coinMultiplier) return null;
   if (new Date(child.coinMultiplier.expiresAt) <= at) return null;
   return child.coinMultiplier;
@@ -511,12 +522,12 @@ function minutesUsedToday(childId) {
 
 // Israeli weekend (Friday/Saturday) — matches the Hebrew-first audience this app
 // targets. Used only for the optional per-child weekend limit override.
-function isWeekend(at = new Date()) {
+function isWeekend(at = currentTime()) {
   const day = at.getDay();
   return day === 5 || day === 6;
 }
 
-function effectiveDailyLimit(child, at = new Date()) {
+function effectiveDailyLimit(child, at = currentTime()) {
   if (isWeekend(at) && child.weekendDailyLimitMins !== null && child.weekendDailyLimitMins !== undefined) {
     return child.weekendDailyLimitMins;
   }
@@ -525,7 +536,7 @@ function effectiveDailyLimit(child, at = new Date()) {
 
 // Time ranges commonly cross midnight (e.g. 20:30-07:00); this treats both
 // same-day and overnight ranges correctly against the given instant.
-function isWithinTimeRange(startStr, endStr, at = new Date()) {
+function isWithinTimeRange(startStr, endStr, at = currentTime()) {
   const [startH, startM] = startStr.split(':').map(Number);
   const [endH, endM] = endStr.split(':').map(Number);
   const minsNow = at.getHours() * 60 + at.getMinutes();
@@ -536,7 +547,7 @@ function isWithinTimeRange(startStr, endStr, at = new Date()) {
   return minsNow >= startMins || minsNow < endMins; // overnight wrap
 }
 
-function isBedtime(child, at = new Date()) {
+function isBedtime(child, at = currentTime()) {
   return isWithinTimeRange(child.bedtimeStart, child.bedtimeEnd, at);
 }
 
@@ -563,7 +574,7 @@ function removeRestrictedWindow(childId, windowId) {
 
 // Returns the first matching restriction active right now — bedtime takes
 // precedence for messaging purposes, then custom windows in list order.
-function getActiveRestriction(child, at = new Date()) {
+function getActiveRestriction(child, at = currentTime()) {
   if (isBedtime(child, at)) return { type: 'bedtime', label: null };
   const day = at.getDay();
   for (const w of child.restrictedWindows || []) {
@@ -575,7 +586,7 @@ function getActiveRestriction(child, at = new Date()) {
 }
 
 function getActiveSession(childId) {
-  const now = new Date();
+  const now = currentTime();
   return (
     getSessions(childId).find((s) => !s.actualEndTime && new Date(s.endTime) > now) || null
   );
@@ -675,7 +686,7 @@ function computeStreak(childId) {
   );
   if (approvedDays.size === 0) return 0;
 
-  const cursor = new Date();
+  const cursor = currentTime();
   if (!approvedDays.has(todayKey(cursor))) {
     cursor.setDate(cursor.getDate() - 1);
     if (!approvedDays.has(todayKey(cursor))) return 0;
@@ -917,7 +928,7 @@ function freeze(childId) {
 // reports and "is anyone in an active session" checks stay accurate.
 function closeExpiredSessions() {
   const sessions = store.get('sessions');
-  const now = new Date();
+  const now = currentTime();
   let changed = false;
   for (const s of sessions) {
     if (!s.actualEndTime && new Date(s.endTime) <= now) {
@@ -936,7 +947,7 @@ function usageByDay(childId, days = 7) {
   const sessions = getSessions(childId);
   const result = [];
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date();
+    const d = currentTime();
     d.setDate(d.getDate() - i);
     const key = todayKey(d);
     const minutes = sessions
@@ -967,7 +978,7 @@ function coinsEarnedByDay(childId, days = 7) {
   const tasks = getTasks(childId).filter((t) => t.status === 'approved' && t.decidedAt);
   const result = [];
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date();
+    const d = currentTime();
     d.setDate(d.getDate() - i);
     const key = todayKey(d);
     const coins = tasks
@@ -1113,6 +1124,7 @@ module.exports = {
   clearFamilyGoal,
   getSessions,
   minutesUsedToday,
+  setClock,
   isBedtime,
   isWithinTimeRange,
   isWeekend,

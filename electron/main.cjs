@@ -116,14 +116,20 @@ if (!gotSingleInstanceLock) {
     lockManager.on('celebrate', (payload) => windows.sendToAll('lock:celebrate', payload));
     lockManager.start();
 
-    updater.on('status', (status) => windows.sendToAll('updates:status', status));
+    updater.on('status', (status) => {
+      windows.sendToAll('updates:status', status);
+      if (status.state === 'downloaded') {
+        tray.refreshTray(); // adds the "restart to update" item
+        updater.maybePrompt(windows.dashboardWin);
+      }
+    });
 
     // Best-effort automatic update check a few seconds after startup, so it
     // never competes with window creation for startup time. Fully isolated
     // from app lifecycle: any failure (offline, no release published yet,
     // GitHub unreachable) is caught inside updater.cjs and only ever logged.
     setTimeout(() => {
-      updater.autoCheckOnStartup().catch(() => {
+      Promise.resolve(updater.autoCheckOnStartup()).catch(() => {
         /* updater.cjs already logs — this catch only guards the setTimeout callback itself */
       });
     }, 5000);
@@ -329,8 +335,19 @@ ipcMain.handle('redemptions:fulfill', (e, redemptionId) => economy.fulfillRedemp
 // ---------------- IPC: Settings / PIN ----------------
 
 ipcMain.handle('settings:get', () => store.getSettings());
-ipcMain.handle('settings:set', (e, patch) => {
+// Security-sensitive fields are only ever written by the main process (pin.cjs / onboarding), never
+// from the renderer: a compromised or buggy renderer must not be able to overwrite the PIN hash,
+// the recovery answer or the onboarding flag through the generic settings channel.
+const RENDERER_PROTECTED_SETTINGS = ['pinHash', 'pinSalt', 'securityQuestionId', 'securityAnswerHash', 'securityAnswerSalt', 'onboarded'];
+ipcMain.handle('settings:set', (e, rawPatch) => {
+  const patch = {};
+  if (rawPatch && typeof rawPatch === 'object' && !Array.isArray(rawPatch)) {
+    for (const [key, value] of Object.entries(rawPatch)) {
+      if (!RENDERER_PROTECTED_SETTINGS.includes(key)) patch[key] = value;
+    }
+  }
   const settings = store.setSettings(patch);
+  if (Object.prototype.hasOwnProperty.call(patch, 'autoInstallUpdates')) updater.applySettings();
   if (Object.prototype.hasOwnProperty.call(patch, 'autostart')) {
     app.setLoginItemSettings({ openAtLogin: Boolean(patch.autostart) });
   }

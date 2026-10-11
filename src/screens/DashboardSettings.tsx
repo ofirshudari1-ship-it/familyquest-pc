@@ -107,11 +107,15 @@ function UpdatesCard() {
   const [status, setStatus] = useState<UpdateStatus>({ state: 'idle' });
   const [feedUrl, setFeedUrl] = useState('');
   const [feedSaved, setFeedSaved] = useState(false);
+  const [autoInstall, setAutoInstall] = useState(true);
 
   useEffect(() => {
     window.familyquest.appInfo().then((i) => setVersion(i.version));
     window.familyquest.getUpdateStatus().then(setStatus);
-    window.familyquest.getSettings().then((s) => setFeedUrl(s.updateFeedUrl || ''));
+    window.familyquest.getSettings().then((s) => {
+      setFeedUrl(s.updateFeedUrl || '');
+      setAutoInstall(s.autoInstallUpdates !== false);
+    });
     return window.familyquest.onUpdateStatus(setStatus);
   }, []);
 
@@ -119,6 +123,11 @@ function UpdatesCard() {
     await window.familyquest.setSettings({ updateFeedUrl: feedUrl.trim() || null });
     setFeedSaved(true);
     setTimeout(() => setFeedSaved(false), 2000);
+  };
+
+  const toggleAutoInstall = async (checked: boolean) => {
+    setAutoInstall(checked);
+    await window.familyquest.setSettings({ autoInstallUpdates: checked });
   };
 
   const statusText = (): string => {
@@ -136,7 +145,9 @@ function UpdatesCard() {
       case 'downloading':
         return `מוריד עדכון... ${status.percent}%`;
       case 'downloaded':
-        return `גרסה ${status.version} מוכנה להתקנה`;
+        return autoInstall
+          ? `גרסה ${status.version} הורדה. היא תותקן אוטומטית ביציאה הבאה מהתוכנה, או עכשיו בלחיצה על "התקנה והפעלה מחדש"`
+          : `גרסה ${status.version} הורדה. ההתקנה האוטומטית כבויה: לחצו "התקנה והפעלה מחדש" כדי להתקין`;
       case 'error':
         return status.message;
       default:
@@ -153,6 +164,14 @@ function UpdatesCard() {
       {statusText() && (
         <p style={{ fontSize: 13, color: status.state === 'error' ? 'var(--bad)' : 'var(--text-dim)' }}>{statusText()}</p>
       )}
+      <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+        <input type="checkbox" checked={autoInstall} onChange={(e) => toggleAutoInstall(e.target.checked)} />
+        התקנת עדכונים אוטומטית
+      </label>
+      <p className="dim" style={{ fontSize: 12, marginTop: 0 }}>
+        התוכנה בודקת עדכונים כל כמה שעות ומורידה אותם ברקע. כשהאפשרות פעילה, העדכון מותקן לבד ביציאה הבאה מהתוכנה. Windows מבקשת אישור
+        פעם אחת (חלון UAC) בכל עדכון, כי התוכנה מותקנת לכל המשתמשים בתיקיית Program Files.
+      </p>
       <label className="label">כתובת שרת עדכונים (מתקדם — ריק = לא מוגדר)</label>
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         <input
